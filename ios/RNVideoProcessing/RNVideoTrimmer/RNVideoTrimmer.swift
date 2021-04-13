@@ -215,47 +215,17 @@ class RNVideoTrimmer: NSObject {
 
         let startTime = CMTime(seconds: Double(sTime!), preferredTimescale: 1000)
         let endTime = CMTime(seconds: Double(eTime!), preferredTimescale: 1000)
+        print("timescale \(asset.duration.timescale) duration \(asset.duration.seconds)")
+
+        print("start \(startTime) end \(endTime)")
         let timeRange = CMTimeRange(start: startTime, end: endTime)
-
-        let composition = AVMutableComposition()
-        let track = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
-        let videoOrientation = self.getVideoOrientationFromAsset(asset: asset)
-
-        if ( videoOrientation == .up  ) {
-          var transforms: CGAffineTransform?
-          transforms = track?.preferredTransform
-          transforms = CGAffineTransform(rotationAngle: 0)
-          transforms = transforms?.concatenating(CGAffineTransform(rotationAngle: CGFloat(90.0 * .pi / 180)))
-          track?.preferredTransform = transforms!
-        }
-        else if ( videoOrientation == .down ) {
-          var transforms: CGAffineTransform?
-          transforms = track?.preferredTransform
-          transforms = CGAffineTransform(rotationAngle: 0)
-          transforms = transforms?.concatenating(CGAffineTransform(rotationAngle: CGFloat(270.0 * .pi / 180)))
-          track?.preferredTransform = transforms!
-        }
-        else if ( videoOrientation == .left ) {
-          var transforms: CGAffineTransform?
-          transforms = track?.preferredTransform
-          transforms = CGAffineTransform(rotationAngle: 0)
-          transforms = transforms?.concatenating(CGAffineTransform(rotationAngle: CGFloat(180.0 * .pi / 180)))
-          track?.preferredTransform = transforms!
-        }
-
-        do {
-          try composition.insertTimeRange(timeRange, of: asset, at: CMTime.zero)
-        } catch {
-          callback(["Error inserting time range", NSNull()])
-          // Error handling code here
-          return
-        }
-
+        
         var outputURL = documentDirectory.appendingPathComponent("output")
+
         do {
             try manager.createDirectory(at: outputURL, withIntermediateDirectories: true, attributes: nil)
             let name = self.randomString()
-            outputURL = outputURL.appendingPathComponent("\(name).mp4")
+            outputURL = outputURL.appendingPathComponent("\(name).mov")
         } catch {
             callback([error.localizedDescription, NSNull()])
             print(error)
@@ -263,19 +233,21 @@ class RNVideoTrimmer: NSObject {
 
         //Remove existing file
         _ = try? manager.removeItem(at: outputURL)
+        
 
-        let finalComposition = composition.copy() as! AVComposition
+//        let finalComposition = composition.copy() as! AVComposition
         let useQuality = self.getQualityForAsset(quality: quality, asset: asset)
 
         print("RNVideoTrimmer passed quality: \(quality). useQuality: \(useQuality)")
 
-        guard let exportSession = AVAssetExportSession(asset: finalComposition, presetName: useQuality)
+        guard let exportSession = AVAssetExportSession(asset: asset, presetName: useQuality)
             else {
                 callback(["Error creating AVAssetExportSession", NSNull()])
                 return
         }
-        exportSession.outputURL = NSURL.fileURL(withPath: outputURL.path)
-        exportSession.outputFileType = .mp4
+        print("path \(outputURL.path)")
+        exportSession.outputURL = URL(fileURLWithPath: outputURL.path)
+        exportSession.outputFileType = AVFileType.mov
         exportSession.shouldOptimizeForNetworkUse = true
 
         if saveToCameraRoll && saveWithCurrentDate {

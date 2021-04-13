@@ -38,6 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (assign, nonatomic) Boolean showTrackerHandle;
 
+// Number of seconds between 
+@property (assign, nonatomic) NSInteger rulerLabelInterval;
+
 // Custom image for the left thumb
 @property (strong, nonatomic, nullable) UIImage *leftThumbImage;
 
@@ -72,9 +75,10 @@ NS_ASSUME_NONNULL_END
 
 @protocol ICGVideoTrimmerDelegate <NSObject>
 
+@optional
 - (void)trimmerView:(nonnull ICGVideoTrimmerView *)trimmerView didChangeLeftPosition:(CGFloat)startTime rightPosition:(CGFloat)endTime;
+- (void)trimmerViewDidEndEditing:(nonnull ICGVideoTrimmerView *)trimmerView;
 - (void)trimmerView:(nonnull ICGVideoTrimmerView *)trimmerView currentPosition:(CGFloat)currentTime;
-
 @end
 
 

@@ -47,19 +47,18 @@
     return self;
 }
 
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
-{
-    CGRect relativeFrame = self.bounds;
-    UIEdgeInsets hitTestEdgeInsets = UIEdgeInsetsMake(0, -30, 0, -30);
-    CGRect hitFrame = UIEdgeInsetsInsetRect(relativeFrame, hitTestEdgeInsets);
-    return CGRectContainsPoint(hitFrame, point);
+- (void)setColor:(UIColor *)color {
+    _color = color;
+    [self setNeedsDisplay];
 }
 
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
-    CGRect frame = CGRectInset(self.bounds, -20, -20);
-    
-    return CGRectContainsPoint(frame, point) ? self : nil;
-}
+//- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+//{
+//    CGRect relativeFrame = self.bounds;
+//    UIEdgeInsets hitTestEdgeInsets = UIEdgeInsetsMake(0, -30, 0, -30);
+//    CGRect hitFrame = UIEdgeInsetsInsetRect(relativeFrame, hitTestEdgeInsets);
+//    return CGRectContainsPoint(hitFrame, point);
+//}
 
 - (void)drawRect:(CGRect)rect
 {
@@ -87,11 +86,8 @@
         [decoratingPath closePath];
         [[UIColor colorWithWhite:1 alpha:0.5] setFill];
         [decoratingPath fill];
-        
+
     }
-    
-    
-    
 }
 
 
